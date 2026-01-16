@@ -79,8 +79,15 @@ def generate_mermaid_syntax(tasks: List[Task]) -> str:
                 'pending': ''
             }.get(task.status, '')
 
-            task_line = f"    {task.title}    :{status}, task{task.id}, "
-            task_line += f"{task.start_date}, {task.due_date}"
+            # 期間を計算（日数）
+            duration_days = (task.due_date - task.start_date).days + 1
+
+            # ステータスが空の場合はカンマなし
+            if status:
+                task_line = f"    {task.title}    :{status}, task{task.id}, "
+            else:
+                task_line = f"    {task.title}    :task{task.id}, "
+            task_line += f"{task.start_date}, {duration_days}d"
             lines.append(task_line)
 
     return '\n'.join(lines)
