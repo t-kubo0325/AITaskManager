@@ -96,5 +96,57 @@ def tags():
     tags_command()
 
 
+@cli.command()
+@click.option('--category', '-c', help='カテゴリでフィルタ')
+@click.option('--period', type=click.Choice(['week', 'month', 'year']), default='month', help='期間指定')
+@click.option('--json', 'output_json', is_flag=True, help='JSON形式で出力')
+def stats(category, period, output_json):
+    """統計情報を表示"""
+    from ai_task_manager.commands.stats import stats_command
+    stats_command(category, period, output_json)
+
+
+@cli.group()
+def export():
+    """データをエクスポート"""
+    pass
+
+
+@export.command('csv')
+@click.option('--output', '-o', help='出力ファイルパス')
+@click.option('--category', '-c', help='カテゴリでフィルタ')
+@click.option('--status', '-s', help='ステータスでフィルタ')
+@click.option('--priority', '-p', help='優先度でフィルタ')
+def export_csv(output, category, status, priority):
+    """CSVファイルにエクスポート"""
+    from ai_task_manager.commands.export import export_csv_command
+    export_csv_command(output, category, status, priority)
+
+
+@cli.command('init-config')
+@click.option('--output', '-o', help='出力ファイルパス')
+def init_config(output):
+    """設定ファイルを生成"""
+    from ai_task_manager.config import init_config_file
+    try:
+        file_path = init_config_file(output)
+        click.echo(f"✅ 設定ファイルを生成しました: {file_path}")
+        click.echo("\n設定ファイルを編集してカスタマイズできます。")
+    except ImportError as e:
+        click.echo(f"❌ エラー: {e}")
+        click.echo("PyYAMLをインストールしてください: pip install pyyaml")
+    except Exception as e:
+        click.echo(f"❌ エラー: {e}")
+
+
+@cli.command()
+@click.option('--output', '-o', help='出力ファイルパス')
+@click.option('--open', 'open_browser', is_flag=True, help='生成後にブラウザで開く')
+def dashboard(output, open_browser):
+    """HTMLダッシュボードを生成"""
+    from ai_task_manager.commands.dashboard import dashboard_command
+    dashboard_command(output, open_browser)
+
+
 if __name__ == '__main__':
     cli()
