@@ -1,0 +1,27 @@
+{
+  "name": "task-manager",
+  "description": "AI Task Managerを使用してタスクを管理",
+  "version": "1.0.0",
+  "commands": {
+    "daily-review": {
+      "description": "毎日のタスク確認と整理",
+      "script": "scripts/daily_review.py"
+    },
+    "deadline-check": {
+      "description": "期限が近いタスクをチェック",
+      "script": "scripts/deadline_check.py"
+    },
+    "progress-report": {
+      "description": "プロジェクトの進捗レポート生成",
+      "script": "scripts/progress_report.py"
+    },
+    "auto-organize": {
+      "description": "タスクの自動整理",
+      "script": "scripts/auto_organize.py"
+    }
+  },
+  "schedule": {
+    "daily-review": "0 9 * * *",
+    "deadline-check": "0 9,17 * * *"
+  }
+}

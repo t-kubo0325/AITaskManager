@@ -1,0 +1,20 @@
+skills:
+  task-manager:
+    enabled: true
+    auto_run:
+      - command: daily-review
+        schedule: "0 9 * * *"
+      - command: deadline-check
+        schedule: "0 9,17 * * *"
+
+aliases:
+  tm: "python3 -m ai_task_manager.cli"
+  task: "python3 -m ai_task_manager.cli"
+
+  # よく使うコマンドのエイリアス
+  tl: "python3 -m ai_task_manager.cli list"
+  ta: "python3 -m ai_task_manager.cli add"
+  tt: "python3 -m ai_task_manager.cli tree"
+  tg: "python3 -m ai_task_manager.cli gantt"
+  ts: "python3 -m ai_task_manager.cli stats"
+  td: "python3 -m ai_task_manager.cli dashboard"
