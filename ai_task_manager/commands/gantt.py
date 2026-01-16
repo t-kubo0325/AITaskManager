@@ -8,7 +8,7 @@ from ai_task_manager.visualization.ascii_gantt import generate_ascii_gantt
 from ai_task_manager.utils.errors import handle_error, DatabaseError, InvalidDateFormatError
 
 
-def gantt_command(range_str, category, status, priority, width):
+def gantt_command(range_str, category, status, priority, width, html, output, open_browser):
     """ASCIIガントチャート表示"""
     try:
         # 日付範囲の解析
@@ -54,12 +54,54 @@ def gantt_command(range_str, category, status, priority, width):
             task_tags = get_task_tags(row[0])
             tasks.append(Task.from_db_row(row, task_tags))
 
-        # ガントチャート生成
-        gantt_chart = generate_ascii_gantt(tasks, start_date, end_date, width)
-        click.echo(gantt_chart)
+        if html:
+            # HTML生成
+            from ai_task_manager.visualization.html_generator import generate_html_gantt
+
+            file_path = generate_html_gantt(tasks, output or 'gantt.html')
+            click.echo(f"✅ HTMLファイルを生成しました: {file_path}")
+
+            if open_browser:
+                open_in_browser(file_path)
+                click.echo("ブラウザで開きました")
+        else:
+            # ASCII表示（既存）
+            gantt_chart = generate_ascii_gantt(tasks, start_date, end_date, width)
+            click.echo(gantt_chart)
 
     except (DatabaseError, InvalidDateFormatError) as e:
         handle_error(e)
+
+
+def open_in_browser(file_path: str):
+    """ブラウザでHTMLファイルを開く（WSL対応）"""
+    import os
+    import subprocess
+    import platform
+
+    abs_path = os.path.abspath(file_path)
+
+    try:
+        if platform.system() == "Windows":
+            os.startfile(abs_path)
+        elif platform.system() == "Darwin":  # macOS
+            subprocess.run(["open", abs_path])
+        else:  # Linux / WSL
+            # WSL環境の検出
+            if "microsoft" in platform.uname().release.lower():
+                # WSL: wslview を使用
+                try:
+                    subprocess.run(["wslview", abs_path], check=True, timeout=5)
+                except FileNotFoundError:
+                    # wslview がない場合のフォールバック
+                    click.echo("⚠️ wslview が見つかりません。wslu パッケージをインストールしてください")
+                    click.echo(f"手動で開く場合: {abs_path}")
+            else:
+                # 通常のLinux: xdg-open
+                subprocess.run(["xdg-open", abs_path])
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError) as e:
+        click.echo("⚠️ ブラウザの自動起動に失敗しました")
+        click.echo(f"手動で開く場合: {abs_path}")
 
 
 def parse_date_range(range_str):

@@ -5,7 +5,7 @@ from ai_task_manager.models import Task
 from ai_task_manager.utils.errors import handle_error, DatabaseError
 
 
-def list_tasks(category, status, priority, tags):
+def list_tasks(category, status, priority, tags, output_json=False):
     """タスク一覧を表示"""
     try:
         conn = get_connection()
@@ -49,17 +49,29 @@ def list_tasks(category, status, priority, tags):
         conn.close()
 
         if not rows:
-            click.echo("📭 タスクが見つかりません")
+            if output_json:
+                click.echo("[]")
+            else:
+                click.echo("📭 タスクが見つかりません")
             return
 
-        # タスクの表示
+        # タスクオブジェクトに変換（タグ付き）
+        tasks = []
+        for row in rows:
+            task_tags = get_task_tags(row[0])
+            tasks.append(Task.from_db_row(row, task_tags))
+
+        # JSON出力
+        if output_json:
+            from ai_task_manager.utils.json_output import tasks_to_json
+            click.echo(tasks_to_json(tasks))
+            return
+
+        # 通常の表示
         click.echo(f"\n📋 タスク一覧 ({len(rows)} 件)\n")
         click.echo("=" * 80)
 
-        for row in rows:
-            task_tags = get_task_tags(row[0])
-            task = Task.from_db_row(row, task_tags)
-
+        for task in tasks:
             # 優先度マーク
             priority_mark = {'high': '[高]', 'medium': '[中]', 'low': '[低]'}
             status_mark = {
