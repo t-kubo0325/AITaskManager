@@ -30,10 +30,11 @@ def add(title, description, category, priority, start, due, parent, tags):
 @click.option('--status', '-s', help='ステータスでフィルタ')
 @click.option('--priority', '-p', help='優先度でフィルタ')
 @click.option('--tags', help='タグでフィルタ（カンマ区切り）')
-def list(category, status, priority, tags):
+@click.option('--json', 'output_json', is_flag=True, help='JSON形式で出力')
+def list(category, status, priority, tags, output_json):
     """タスク一覧を表示"""
     from ai_task_manager.commands.list import list_tasks
-    list_tasks(category, status, priority, tags)
+    list_tasks(category, status, priority, tags, output_json)
 
 
 @cli.command()
@@ -79,10 +80,13 @@ def tree(category, status, tags):
 @click.option('--status', '-s', help='ステータスでフィルタ')
 @click.option('--priority', '-p', help='優先度でフィルタ')
 @click.option('--width', default=80, help='チャート幅')
-def gantt(range_str, category, status, priority, width):
+@click.option('--html', is_flag=True, help='HTML形式で出力')
+@click.option('--output', '-o', help='出力ファイルパス')
+@click.option('--open', 'open_browser', is_flag=True, help='生成後にブラウザで開く')
+def gantt(range_str, category, status, priority, width, html, output, open_browser):
     """ASCIIガントチャートを表示"""
     from ai_task_manager.commands.gantt import gantt_command
-    gantt_command(range_str, category, status, priority, width)
+    gantt_command(range_str, category, status, priority, width, html, output, open_browser)
 
 
 @cli.command()
