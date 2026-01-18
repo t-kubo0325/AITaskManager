@@ -52,7 +52,7 @@ def generate_mermaid_syntax(tasks: List[Task]) -> str:
         "gantt",
         "    title タスク管理ガントチャート",
         "    dateFormat YYYY-MM-DD",
-        "    axisFormat %m/%d"
+        "    axisFormat %m月%d日"
     ]
 
     # カテゴリごとにグループ化
