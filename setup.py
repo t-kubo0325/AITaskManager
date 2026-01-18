@@ -20,6 +20,7 @@ setup(
         'click>=8.0.0',
         'jinja2>=3.0.0',
         'python-dateutil>=2.8.0',
+        'flask>=2.0.0',
     ],
     entry_points={
         'console_scripts': [
