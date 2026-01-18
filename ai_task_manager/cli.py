@@ -148,5 +148,15 @@ def dashboard(output, open_browser):
     dashboard_command(output, open_browser)
 
 
+@cli.command()
+@click.option('--port', '-p', default=5000, help='ポート番号 (デフォルト: 5000)')
+@click.option('--host', '-h', default='127.0.0.1', help='ホスト (デフォルト: 127.0.0.1)')
+@click.option('--debug', is_flag=True, help='デバッグモードで起動')
+def serve(port, host, debug):
+    """Webサーバーを起動してタスクをブラウザで表示"""
+    from ai_task_manager.commands.serve import serve_command
+    serve_command(port, host, debug)
+
+
 if __name__ == '__main__':
     cli()
