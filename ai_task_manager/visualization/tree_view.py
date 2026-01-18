@@ -45,6 +45,9 @@ def format_task_line(task: Task) -> str:
     Returns:
         フォーマットされた文字列
     """
+    # タスクID
+    task_id = f"[ID: {task.id}]"
+
     # 優先度
     priority_map = {'high': '[高]', 'medium': '[中]', 'low': '[低]'}
     priority_mark = priority_map.get(task.priority, '[中]')
@@ -59,7 +62,7 @@ def format_task_line(task: Task) -> str:
     status_mark = status_map.get(task.status, '')
 
     # 基本情報
-    parts = [priority_mark, task.title]
+    parts = [task_id, priority_mark, task.title]
 
     # 日付
     if task.start_date and task.due_date:
