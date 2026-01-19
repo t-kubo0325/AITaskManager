@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タスク一覧</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            padding: 0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+            position: relative;
+        }
+        .nav-links {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            display: flex;
+            gap: 16px;
+        }
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            transition: background 0.2s;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .controls {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+        .filter-select {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .filter-select:hover {
+            border-color: #0d9488;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+        .task-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .task-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 150px 120px 120px 150px 150px;
+            gap: 16px;
+            padding: 16px 24px;
+            background: #f9fafb;
+            border-bottom: 2px solid #e2e8f0;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .task-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 150px 120px 120px 150px 150px;
+            gap: 16px;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s;
+            align-items: center;
+        }
+        .task-row:hover {
+            background: #f9fafb;
+        }
+        .task-row:last-child {
+            border-bottom: none;
+        }
+        .task-id {
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .task-title {
+            font-weight: 600;
+            color: #111827;
+            font-size: 15px;
+        }
+        .task-category {
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-block;
+            text-align: center;
+        }
+        .task-priority {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .priority-high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .priority-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .priority-low {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+        .task-status {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-in_progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .status-pending {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        .status-cancelled {
+            background: #ffe4e6;
+            color: #be123c;
+        }
+        .task-date {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .overdue {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .task-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f3f4f6;
+            color: #4b5563;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .empty-state {
+            padding: 80px 24px;
+            text-align: center;
+            color: #9ca3af;
+        }
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        .empty-state-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 24px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        .stats-summary {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            padding: 12px 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+        .stat-number {
+            font-weight: 700;
+            font-size: 20px;
+            color: #0d9488;
+            margin-right: 6px;
+        }
+        .stat-label {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="nav-links">
+                <a href="/" class="nav-link">📊 ダッシュボード</a>
+                <a href="/gantt" class="nav-link">📈 ガントチャート</a>
+            </div>
+            <h1>📋 タスク一覧</h1>
+            <p class="subtitle">AI Task Manager - 全タスクの詳細表示</p>
+        </header>
+
+        <div class="stats-summary">
+            <div class="stat-item">
+                <span class="stat-number">{{ total_tasks }}</span>
+                <span class="stat-label">件のタスク</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ completed_count }}</span>
+                <span class="stat-label">件完了</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ in_progress_count }}</span>
+                <span class="stat-label">件進行中</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ pending_count }}</span>
+                <span class="stat-label">件未着手</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="filter-group">
+                <span class="filter-label">フィルタ:</span>
+                <select class="filter-select" id="statusFilter">
+                    <option value="">全ステータス</option>
+                    <option value="pending">未着手</option>
+                    <option value="in_progress">進行中</option>
+                    <option value="completed">完了</option>
+                    <option value="cancelled">キャンセル</option>
+                </select>
+                <select class="filter-select" id="priorityFilter">
+                    <option value="">全優先度</option>
+                    <option value="high">高</option>
+                    <option value="medium">中</option>
+                    <option value="low">低</option>
+                </select>
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">全カテゴリ</option>
+                    {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" class="search-box" id="searchBox" placeholder="タスクを検索...">
+            </div>
+        </div>
+
+        <div class="task-list">
+            <div class="task-header">
+                <div>ID</div>
+                <div>タイトル</div>
+                <div>カテゴリ</div>
+                <div>優先度</div>
+                <div>ステータス</div>
+                <div>開始日</div>
+                <div>期限</div>
+            </div>
+            <div id="taskListBody">
+                {% if tasks %}
+                    {% for task in tasks %}
+                    <div class="task-row"
+                         data-status="{{ task.status }}"
+                         data-priority="{{ task.priority }}"
+                         data-category="{{ task.category or '' }}"
+                         data-title="{{ task.title|lower }}">
+                        <div class="task-id">#{{ task.id }}</div>
+                        <div>
+                            <div class="task-title">{{ task.title }}</div>
+                            {% if task.tags %}
+                            <div class="task-tags">
+                                {% for tag in task.tags %}
+                                <span class="tag">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% if task.category %}
+                            <span class="task-category">{{ task.category }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span class="task-priority priority-{{ task.priority }}">
+                                {% if task.priority == 'high' %}高
+                                {% elif task.priority == 'medium' %}中
+                                {% else %}低{% endif %}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="task-status status-{{ task.status }}">
+                                {% if task.status == 'completed' %}完了
+                                {% elif task.status == 'in_progress' %}進行中
+                                {% elif task.status == 'pending' %}未着手
+                                {% else %}キャンセル{% endif %}
+                            </span>
+                        </div>
+                        <div class="task-date">
+                            {% if task.start_date %}{{ task.start_date }}{% else %}-{% endif %}
+                        </div>
+                        <div class="task-date {% if task.is_overdue %}overdue{% endif %}">
+                            {% if task.due_date %}{{ task.due_date }}{% else %}-{% endif %}
+                            {% if task.is_overdue %} ⚠️{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <div class="empty-state-text">タスクがありません</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <footer>
+            Generated by AI Task Manager
+        </footer>
+    </div>
+
+    <script>
+        // フィルタリング機能
+        const statusFilter = document.getElementById('statusFilter');
+        const priorityFilter = document.getElementById('priorityFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const searchBox = document.getElementById('searchBox');
+        const taskRows = document.querySelectorAll('.task-row');
+
+        function applyFilters() {
+            const statusValue = statusFilter.value;
+            const priorityValue = priorityFilter.value;
+            const categoryValue = categoryFilter.value;
+            const searchValue = searchBox.value.toLowerCase();
+
+            let visibleCount = 0;
+
+            taskRows.forEach(row => {
+                const status = row.dataset.status;
+                const priority = row.dataset.priority;
+                const category = row.dataset.category;
+                const title = row.dataset.title;
+
+                const statusMatch = !statusValue || status === statusValue;
+                const priorityMatch = !priorityValue || priority === priorityValue;
+                const categoryMatch = !categoryValue || category === categoryValue;
+                const searchMatch = !searchValue || title.includes(searchValue);
+
+                if (statusMatch && priorityMatch && categoryMatch && searchMatch) {
+                    row.style.display = 'grid';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // 空の状態を表示/非表示
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
+        }
+
+        statusFilter.addEventListener('change', applyFilters);
+        priorityFilter.addEventListener('change', applyFilters);
+        categoryFilter.addEventListener('change', applyFilters);
+        searchBox.addEventListener('input', applyFilters);
+    </script>
+</body>
+</html>

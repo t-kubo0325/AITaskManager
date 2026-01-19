@@ -107,6 +107,51 @@ def serve_command(port, host, debug):
             except Exception as e:
                 return f"<h1>エラー</h1><pre>{str(e)}</pre>", 500
 
+        @app.route('/tasks')
+        def task_list():
+            """タスク一覧"""
+            try:
+                conn = get_connection()
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM tasks ORDER BY id")
+                rows = cursor.fetchall()
+                conn.close()
+
+                # タスクオブジェクトに変換
+                tasks = []
+                for row in rows:
+                    task_tags = get_task_tags(row[0])
+                    tasks.append(Task.from_db_row(row, task_tags))
+
+                # カテゴリ一覧を取得
+                categories = sorted(set(task.category for task in tasks if task.category))
+
+                # ステータス別カウント
+                status_counts = {
+                    'completed': sum(1 for t in tasks if t.status == 'completed'),
+                    'in_progress': sum(1 for t in tasks if t.status == 'in_progress'),
+                    'pending': sum(1 for t in tasks if t.status == 'pending'),
+                }
+
+                # テンプレートを読み込み
+                template_path = template_dir / 'task_list.html'
+                template = Template(template_path.read_text(encoding='utf-8'))
+
+                # HTMLを生成
+                html_content = template.render(
+                    tasks=tasks,
+                    categories=categories,
+                    total_tasks=len(tasks),
+                    completed_count=status_counts['completed'],
+                    in_progress_count=status_counts['in_progress'],
+                    pending_count=status_counts['pending']
+                )
+
+                return html_content
+
+            except Exception as e:
+                return f"<h1>エラー</h1><pre>{str(e)}</pre>", 500
+
         @app.route('/api/tasks')
         def api_tasks():
             """タスク一覧API"""
@@ -141,6 +186,7 @@ def serve_command(port, host, debug):
         # サーバー起動
         click.echo(f"🚀 Webサーバーを起動しています...")
         click.echo(f"📊 ダッシュボード: http://{host}:{port}/")
+        click.echo(f"📋 タスク一覧: http://{host}:{port}/tasks")
         click.echo(f"📈 ガントチャート: http://{host}:{port}/gantt")
         click.echo(f"🔌 API (タスク一覧): http://{host}:{port}/api/tasks")
         click.echo(f"\n終了するには Ctrl+C を押してください\n")
