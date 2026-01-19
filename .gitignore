@@ -39,3 +39,6 @@ htmlcov/
 venv/
 env/
 ENV/
+/.venv/
+/.claude
+/output
