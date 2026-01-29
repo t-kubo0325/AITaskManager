@@ -18,7 +18,12 @@ def list_tasks(category, status, priority, tags, output_json=False):
             query += " AND category = ?"
             params.append(category)
 
-        if status:
+        # If status is not provided, default to 'pending' and 'in_progress'
+        if not status:
+            query += " AND status IN (?, ?)"
+            params.append('pending')
+            params.append('in_progress')
+        else:
             query += " AND status = ?"
             params.append(status)
 

@@ -49,6 +49,10 @@ def update_task(task_id, title, description, category, priority, status, progres
             updates.append("priority = ?")
             params.append(priority)
 
+        # If status is set to 'completed' and progress is not explicitly set, set progress to 100
+        if status == 'completed' and progress is None:
+            progress = 100
+            
         if status is not None:
             updates.append("status = ?")
             params.append(status)

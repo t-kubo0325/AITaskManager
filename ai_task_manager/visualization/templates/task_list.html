@@ -17,15 +17,14 @@
             padding: 0;
         }
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 20px;
+            width: 100%;
+            min-height: 100vh;
+            background: white;
         }
         header {
             background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
             color: white;
             padding: 40px;
-            border-radius: 16px;
             margin-bottom: 40px;
             box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
             position: relative;
@@ -307,6 +306,7 @@
                 <span class="filter-label">フィルタ:</span>
                 <select class="filter-select" id="statusFilter">
                     <option value="">全ステータス</option>
+                    <option value="active" selected>未完了</option>
                     <option value="pending">未着手</option>
                     <option value="in_progress">進行中</option>
                     <option value="completed">完了</option>
@@ -422,7 +422,13 @@
                 const category = row.dataset.category;
                 const title = row.dataset.title;
 
-                const statusMatch = !statusValue || status === statusValue;
+                let statusMatch;
+                if (statusValue === 'active') {
+                    statusMatch = status === 'pending' || status === 'in_progress';
+                } else {
+                    statusMatch = !statusValue || status === statusValue;
+                }
+                
                 const priorityMatch = !priorityValue || priority === priorityValue;
                 const categoryMatch = !categoryValue || category === categoryValue;
                 const searchMatch = !searchValue || title.includes(searchValue);
@@ -446,6 +452,9 @@
         priorityFilter.addEventListener('change', applyFilters);
         categoryFilter.addEventListener('change', applyFilters);
         searchBox.addEventListener('input', applyFilters);
+
+        // Apply filters on page load to set the default view
+        document.addEventListener('DOMContentLoaded', applyFilters);
     </script>
 </body>
 </html>

@@ -64,15 +64,13 @@ def serve_command(port, host, debug):
                     SELECT * FROM tasks
                     WHERE start_date IS NOT NULL
                     AND due_date IS NOT NULL
+                    AND status != 'completed'
                     ORDER BY start_date, id
                 """
 
                 cursor.execute(query)
                 rows = cursor.fetchall()
                 conn.close()
-
-                if not rows:
-                    return "<h1>表示するタスクがありません</h1>", 404
 
                 # タスクオブジェクトに変換（タグ付き）
                 tasks = []

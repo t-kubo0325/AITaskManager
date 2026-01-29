@@ -22,6 +22,7 @@ class Task:
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     tags: list = field(default_factory=list)
+    depth: int = 0
 
     @property
     def is_overdue(self) -> bool:
